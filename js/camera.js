@@ -13,14 +13,14 @@ function camera_move(target_final, distance_final, delta_d){
 				return;
 			} else {		
 				camera_step_in(delta_t, delta_d);
-				saveFrame();
+				//saveFrame();
 			}
 		} else {
 			if (distanceTarget >= distance_final ) { // zoom out
 				return;
 			} else {
 				camera_step_in(delta_t, delta_d);
-				saveFrame();
+				//saveFrame();
 				
 			}
 		}		

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>WebGL Globe</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/coke50/style.css"/>
+</head>
+<body>
+
+<div id="container"></div>
+<!--
+<div id="info">
+  The <a href="http://www.chromeexperiments.com/globe">WebGL Globe</a> is an
+  open platform for visualizing geographic data. <span
+    class="bull">&bull;</span> <a href="https://github.com/dataarts/webgl-globe">Get
+  the code</a> <span class="bull">&bull;</span> By the Google Data Arts Team</a>
+</div>
+-->
+<div id="title">
+  Coca-cola Freestyle
+</div>
+
+<a id="ce" href="http://www.chromeexperiments.com/globe">
+  <span>Senseable City Lab</span>
+</a>
+<script type="text/javascript" src="/coke50/third-party/Detector.js"></script>
+<script type="text/javascript" src="/coke50/third-party/three.min.js"></script>
+<script type="text/javascript" src="/coke50/third-party/Tween.js"></script>
+<script type="text/javascript" src="/coke50/js/daily.js"></script>
+<script type="text/javascript" src="/coke50/js/camera.js"></script>
+<script type="text/javascript" src="/coke50/js/draw.js"></script>
+<script src="http://d3js.org/d3.v2.min.js?2.8.1"></script>
+<script src="/coke50/js/mouse.js"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script type="text/javascript">
+
+
+
+
+
+  //var years = ['1990','1995','2000'];
+  var container = document.getElementById('container');
+  var globe = new DAT.Globe(container);
+
+  //console.log(globe);
+  //console.log(globe);
+  var days = null;
+  var tweens = [];
+
+  var settime = function(globe, t) {
+    
+    //return function() {
+      var tween = new TWEEN.Tween(globe).to({time: t/4},1000).easing(TWEEN.Easing.Cubic.EaseOut);
+      tweens.push(tween);
+
+      if (t > 0){
+        tweens[t-1].chain(tween);
+      }
+    //};
+  };
+  
+
+  for (var t = 0; t < 4; t++) {
+       settime(globe,t);             
+  }
+    
+
+  /*
+  for(var i = 0; i<years.length; i++) {
+    var y = document.getElementById('year'+years[i]);
+    y.addEventListener('mouseover', settime(globe,i), false);
+  }*/
+  
+  
+  TWEEN.start();  
+
+$(window).ready(function(){
+ d3.csv("/coke50/data/Daily.csv", function(raw_data){
+    //data = [];
+    //console.log(raw_data);
+    var key = Object.keys(raw_data[0]);
+    //console.log(key);
+    days = key.length - 3;    
+    console.log(days + " days per machine");
+    
+    //raw_data.forEach(function(d){
+      //var consumption = [];      
+      //for (var k = 3; k < days; k++){       
+        //consumption.push(parseFloat(d[String(k)]));
+      //}
+      //var array_max = raw_data.map(function(d){ d3.max()})
+    
+    var minimum = key.slice(0,key.length-3).map(function(k){ return d3.min(raw_data, function(d){ return parseFloat(d[k]);}); });
+    
+    
+    var maximum = key.slice(0,key.length-3).map(function(k){ return d3.max(raw_data, function(d){ return parseFloat(d[k]);}); });
+
+    MIN = d3.min(minimum);
+    MAX = d3.max(maximum);
+    
+    
+    //console.log(MAX); 
+      //var max = d3.max(consumption, function(d) { return parseFloat(d.total);} );
+      //if (max > MAX) MAX = max;
+
+      //var min = d3.min(data, function(d) { return parseFloat(d.total);} );
+      //if (min < MIN) MIN = min;
+
+      //console.log(MIN + " , " + MAX);
+      //data.push({id:d.machineId, lat:d.lat, lng:d.lng, total:consumption});
+    //});
+    //console.log(data.length + " machine added!");
+    
+    var count = 0;
+    for (var i = 0; i < 4; i++ ){
+      var each_day = [];
+      raw_data.forEach(function(d){
+        each_day.push({id:d.machineId, lat:d.lat, lng:d.lng, total:parseFloat(d[i+1])});
+      });
+      //console.log(each_day);  
+      globe.addData(each_day, {format: 'magnitude', name: "day"+(i+1), animated: true});
+      count++;
+    }
+
+    console.log(count + " days added!");
+    TWEEN.start();
+    tweens[0].start();
+    //var data = [pop_data,machine_data,machine_all_data];
+    //var top50 = data[1].slice(0,50);
+    
+    //globe.addData(data[0], {format: 'legend', name:'dot'});
+    
+    //globe.createPoints();
+    
+    //globe.addData(top50, {format: 'legend', name:'machine50'});
+    
+    //globe.createPoints();
+
+    //globe.addData(data[1], {format: 'legend', name:'machine'});
+    
+    //globe.createPoints();
+   // globe.addData(data[2], {format: 'legend', name:'machine_all'});
+    
+    globe.createPoints();
+    globe.animate();
+
+
+    
+    document.body.style.backgroundImage = 'none'; // remove loading
+
+  });
+
+
+//setInterval(saveFrame,500);
+
+});
+
+
+</script>
+
+
+</body>
+
+</html>
