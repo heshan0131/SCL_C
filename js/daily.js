@@ -244,7 +244,7 @@ DAT.Globe = function(container, colorFn) {
       //addPoint(lat, lng, size, color, opts.name,subgeo);
     }
 
-    console.log(subgeo);
+    //console.log(subgeo);
     
     if (opts.animated) {
 
@@ -448,13 +448,28 @@ DAT.Globe = function(container, colorFn) {
 
     var lastIndex = index - 1;
     var leftover = scaledt - index;
+    //console.log(leftover);
     if (lastIndex >= 0) {
       this.points.morphTargetInfluences[lastIndex] = 1 - leftover;
     }
     this.points.morphTargetInfluences[index] = leftover;
     //console.log(this.points.morphTargetInfluences);
     //this.points.morphTargetInfluences[index] = 1;
+    
+    //update color
+    var cl = this.points.geometry.faces.length;
+    if(lastIndex >= 0){
+      for (var c = 0; c < cl; c++){
+          var ori_h = this.points.geometry.morphColors[lastIndex].colors[c].getHSL().h
+          var color_distance = this.points.geometry.morphColors[index].colors[c].getHSL().h - ori_h;
+          var color_delta = color_distance * leftover;
+          this.points.geometry.faces[c].color.setHSL(ori_h+color_delta,1.0,0.5);
+      }
+    }
+    this.points.geometry.colorsNeedUpdate = true;
+
     this._time = t;
+
   });
 
   this.addData = addData;
@@ -467,9 +482,4 @@ DAT.Globe = function(container, colorFn) {
 };
 
 
-/****
-
-for (var i = 0; i < 2000; i++){
-  globe._baseGeometry.faces[i].colors.setHex( 0xffffff );
-}
 

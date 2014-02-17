@@ -46,11 +46,11 @@
   //console.log(globe);
   var days = null;
   var tweens = [];
+  var test = 100
 
-  var settime = function(globe, t) {
-    
+  var settime = function(globe, t) {  
     //return function() {
-      var tween = new TWEEN.Tween(globe).to({time: t/4},1000).easing(TWEEN.Easing.Cubic.EaseOut);
+      var tween = new TWEEN.Tween(globe).to({time: t/test},1000).easing(TWEEN.Easing.Cubic.EaseOut);
       tweens.push(tween);
 
       if (t > 0){
@@ -59,19 +59,10 @@
     //};
   };
   
-
-  for (var t = 0; t < 4; t++) {
+  for (var t = 0; t < test; t++) {
        settime(globe,t);             
   }
     
-
-  /*
-  for(var i = 0; i<years.length; i++) {
-    var y = document.getElementById('year'+years[i]);
-    y.addEventListener('mouseover', settime(globe,i), false);
-  }*/
-  
-  
   TWEEN.start();  
 
 $(window).ready(function(){
@@ -112,7 +103,7 @@ $(window).ready(function(){
     //console.log(data.length + " machine added!");
     
     var count = 0;
-    for (var i = 0; i < 4; i++ ){
+    for (var i = 0; i < test; i++ ){
       var each_day = [];
       raw_data.forEach(function(d){
         each_day.push({id:d.machineId, lat:d.lat, lng:d.lng, total:parseFloat(d[i+1])});
@@ -124,7 +115,8 @@ $(window).ready(function(){
 
     console.log(count + " days added!");
     TWEEN.start();
-    tweens[0].start();
+    
+    tweens[0].delay(1000).start();
     //var data = [pop_data,machine_data,machine_all_data];
     //var top50 = data[1].slice(0,50);
     
