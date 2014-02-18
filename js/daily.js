@@ -28,6 +28,24 @@ var distanceTarget_1 = 460;
 var distanceTarget_2 = 380;
 var distanceTarget_3 = 400;
 
+var trajectory = [
+  {dist : 390,
+    targ: {x: 3.2484077502602235, y: 0.5993469676865384}},
+
+  {dist : 210,
+    targ: {x: 3.2441871891781444, y: 0.593777990481938}}
+]
+
+zoom_to_top10 = function(duration){
+
+  var p = duration/Math.abs(trajectory[0].dist - distanceTarget) * 5
+  camera_move(trajectory[0].targ,trajectory[0].dist,-5,p);
+  //event.preventDefault();
+
+  var tween = new TWEEN.Tween(globe.points.material).to({opacity: 0.2},duration).easing(TWEEN.Easing.Cubic.EaseOut).start();
+      
+
+}
 //distanceTarget = distanceTarget_1;
 //var MAX = 0, MIN = 10000000;
 
@@ -129,22 +147,34 @@ DAT.Globe = function(container, colorFn) {
     var geometry = new THREE.SphereGeometry(200, 40, 30);
 
     shader = Shaders['earth'];
+    
     uniforms = THREE.UniformsUtils.clone(shader.uniforms);
 
     uniforms['texture'].value = THREE.ImageUtils.loadTexture(imgDir+'world.jpg');
 
+    uniforms_2 = THREE.UniformsUtils.clone(shader.uniforms);
+
+    uniforms_2['texture'].value = THREE.ImageUtils.loadTexture(imgDir+'world_3.jpg');
+
+
+    //uniforms = { time: { type: "f", value: 1.0 }, resolution: { type: "v2", value: new THREE.Vector2() } }; 
+    //material = new THREE.ShaderMaterial( { uniforms: uniforms, 
+      //vertexShader: document.getElementById( 'vertexShader' ).textContent, 
+      //fragmentShader: document.getElementById( 'fragmentShader' ).textContent } );
     
-    material = new THREE.ShaderMaterial({
+    material_g_zoom1  = new THREE.ShaderMaterial({
 
           uniforms: uniforms,
+          transparent:true,
+          opacity:1,
           vertexShader: shader.vertexShader,
           fragmentShader: shader.fragmentShader
 
         });
 
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.rotation.y = Math.PI;
-    scene.add(mesh);
+    mesh_globe = new THREE.Mesh(geometry, material_g_zoom1);//innitiate globe
+    mesh_globe.rotation.y = Math.PI;
+    scene.add(mesh_globe);
 
     shader = Shaders['atmosphere'];
     uniforms = THREE.UniformsUtils.clone(shader.uniforms);
@@ -163,7 +193,7 @@ DAT.Globe = function(container, colorFn) {
         });
 
     mesh = new THREE.Mesh(geometry, material);
-    mesh.scale.set( 1.1, 1.1, 1.1 );
+    mesh.scale.set( 1.2, 1.2, 1.2 );
     scene.add(mesh);
 
     geometry = new THREE.CubeGeometry(0.75, 0.75, 1);
@@ -282,8 +312,9 @@ DAT.Globe = function(container, colorFn) {
               color: 0xffffff,
               attributes: {},
               vertexColors: THREE.FaceColors,
-              blending: THREE.AdditiveBlending, 
-              transparent: false,
+              //blending: THREE.AdditiveBlending, 
+              transparent: true,
+              opacity:0.6,
               morphTargets: true
             }));
       }      
@@ -420,11 +451,12 @@ DAT.Globe = function(container, colorFn) {
     return this._time || 0;
   });
 
-  //this.__defineGetter__('distanceTarget', function() {
-    //return this.distanceTarget|| 0;
-  //});
-
   this.__defineSetter__('time', function(t) {
+
+    ///////////////////
+    //update geometry//
+    ///////////////////
+
     var validMorphs = [];
     var morphDict = this.points.morphTargetDictionary;
     for(var k in morphDict) {
@@ -433,30 +465,21 @@ DAT.Globe = function(container, colorFn) {
       }
     }
     validMorphs.sort();
-    //console.log(validMorphs);
     var l = validMorphs.length;
-    //console.log("t=" + t);
     var scaledt = t*l+1;
     if(scaledt >= test) return;
-    //console.log("scaledt=" + scaledt);
     var index = Math.floor(scaledt);
-    //console.log("scaledt=" + scaledt);
-    //console.log("index" + index);
-    //var index = t;
    
-    //console.log("index=" + index);
     for (i = 0; i < validMorphs.length; i++) {
       this.points.morphTargetInfluences[validMorphs[i]] = 0;
     }
 
     var lastIndex = index - 1;
     var leftover = scaledt - index;
-    //console.log(leftover);
     if (lastIndex >= 0) {
       this.points.morphTargetInfluences[lastIndex] = 1 - leftover;
     }
     this.points.morphTargetInfluences[index] = leftover;
-    //console.log(this.points.morphTargetInfluences);
     
     ////////////////
     //update color//
@@ -469,18 +492,7 @@ DAT.Globe = function(container, colorFn) {
           var color_distance = this.points.geometry.morphColors[index].colors[c].getHSL().h - ori_h;
           var color_delta = color_distance * leftover;
           this.points.geometry.faces[c].color.setHSL(ori_h+color_delta,1.0,0.5);
-      }
-
-      if (scaledt === index) {
-        //console.log("true");
-        var cam_end = cam_scale(each_day_max[index]);
-
-      //var cam_ori = cam_scale(each_day_max[lastIndex]);
-      //console.log(cam_end + " ," + cam_ori);
-      //var cam_position = cam_end; 
-      //console.log(cam_position);
-        //this.distanceTarget = cam_end;
-      }   
+      } 
     }
     this.points.geometry.colorsNeedUpdate = true;
 
@@ -502,10 +514,10 @@ DAT.Globe = function(container, colorFn) {
       .duration(0);
 
     $("#date").text(format_date(new Date(d_scale(t*l))));
-    //}    
+       
 
     //save image frame here...hope not going to kill my machine
-    saveFrame();
+    //saveFrame();
     this._time = t;
 
   });

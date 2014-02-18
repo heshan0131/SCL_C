@@ -4,6 +4,8 @@
   <title>WebGL Globe</title>
   <meta charset="utf-8">
   <link rel="stylesheet" href="/coke50/style.css"/>
+
+
 </head>
 <body>
 
@@ -44,8 +46,8 @@
   var days = null;
   var tweens = []; cam_tweens = [];
   var each_day_max = [];
-  var test = 10;
-  var frame_speed = 5000;
+  var test = 4;
+  var frame_speed = 500;
   var start_delay = 2000;
   var sli_width = 1100; // days to test
   var margin = {top: 20, right: 50, bottom: 20, left: 50},
@@ -61,7 +63,7 @@
 
 
 
-  var settime = function(globe,pointer,t) {  
+  var settime = function(globe,pointer,t) {  //Here generate the animation chain
     //return function() {
       var tween = new TWEEN.Tween(globe).to({time: t/test},frame_speed).easing(TWEEN.Easing.Cubic.EaseOut);
       tweens.push(tween);
@@ -74,12 +76,13 @@
         tween.delay(start_delay).start();
         cam_tween.delay(start_delay).start();
         
-      }
+      } else {
+        //if (t == test-1){ // add calloncomplete to the last tween
+          //tween.call(zoom_to_top10);
+        //}
 
-      if (t > 0){
         tweens[t-1].chain(tween);
         cam_tweens[t-1].chain(cam_tween);
-
       }
     //};
   };
@@ -120,37 +123,6 @@
     .text("");
 }
 
-  var animate_slider = function(){
-
-    //upd_date = function(t){
-      //$("#date").text(format_date(new Date(d_scale(t))));
-    //}
-    
-    //for( var i = 0; i < test; i++){
-      //setTimeout(upd_date,start_delay+i*frame_speed,i);
-    //}      
-    /*
-    d3.select("#dot")
-      .transition()
-      .delay(start_delay)
-      .attr("cx",x_scale(d_scale(test-1)))
-      .ease("linear")
-      .duration(frame_speed*test); 
-
-    d3.select("#date")
-      .transition()
-      .delay(start_delay)
-      .attr("transform", "translate(" + x_scale(d_scale(test-1)) + ", " + margin.top + ")")
-      .ease("linear")
-      .duration(frame_speed*test);   
-      */   
-  }
-    
- // TWEEN.start();
-
-  //var Cam_tween = new TWEEN.Tween(this).to({distanceTarget : 400},1000).easing(TWEEN.Easing.Cubic.EaseOut);
-  //TWEEN.start();
-  //Cam_tween.start();
 
 $(window).ready(function(){
  d3.csv("/coke50/data/Daily.csv", function(raw_data){
@@ -159,12 +131,6 @@ $(window).ready(function(){
     days = key.length - 3;    
     console.log(days + " days per machine");
     
-    //raw_data.forEach(function(d){
-      //var consumption = [];      
-      //for (var k = 3; k < days; k++){       
-        //consumption.push(parseFloat(d[String(k)]));
-      //}
-      //var array_max = raw_data.map(function(d){ d3.max()})
     
     var minimum = key.slice(0,key.length-3).map(function(k){ return d3.min(raw_data, function(d){ return parseFloat(d[k]);}); });
       
@@ -219,8 +185,6 @@ $(window).ready(function(){
     }
     TWEEN.start();
     
-    //tweens[0].delay(1000).start();
-    //var data = [pop_data,machine_data,machine_all_data];
     //var top50 = data[1].slice(0,50);
     
     //globe.addData(data[0], {format: 'legend', name:'dot'});
@@ -240,6 +204,7 @@ $(window).ready(function(){
     globe.animate();
 
     document.body.style.backgroundImage = 'none'; // remove loading
+    console.log("image deleted");
 
   });
 
