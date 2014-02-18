@@ -84,3 +84,33 @@ a:hover {
   bottom: 15px;
   left: 20px;
 }
+
+#slider{
+  position: relative;
+  width:1200px;
+  top: 660px;
+  color: #ffffff;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#slider svg{
+  position:relative;
+
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #ffffff;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  color:#ffffff;
+  fill: #ffffff;
+}
+
+svg #date {
+  font-size: 18px;
+
+}

@@ -15,7 +15,7 @@ var DAT = DAT || {};
 var camera = null;
 var rotation = null; 
 var target = { x: 3.0023889803846893, y: 0.7635987755982989 };
-var distanceTarget = 100000;
+//var distanceTarget = 100000;
 
 var target_1 = {x: 2.964955396106033, y: 0.7201028706105379};
 var target_2 = {x: 2.964955396106033, y: 0.7201028706105379};
@@ -28,11 +28,14 @@ var distanceTarget_1 = 460;
 var distanceTarget_2 = 380;
 var distanceTarget_3 = 400;
 
-distanceTarget = distanceTarget_1;
+//distanceTarget = distanceTarget_1;
 //var MAX = 0, MIN = 10000000;
 
 
 DAT.Globe = function(container, colorFn) {
+
+  distanceTarget = 500;
+  c_close = 450; c_far = 550;
 
 
   colorFn = function(x) {
@@ -105,8 +108,6 @@ DAT.Globe = function(container, colorFn) {
   rotation = { x: 0, y: 0.0 };
   //target = { x: Math.PI*3/2, y: Math.PI / 6.0 };
   
-
-
   var distance = 100000; 
   var padding = 40;
   var PI_HALF = Math.PI / 2;
@@ -189,7 +190,6 @@ DAT.Globe = function(container, colorFn) {
 
     window.addEventListener('resize', onWindowResize, false);
 
-    
     container.addEventListener('mouseover', function() {
       overRenderer = true;
     }, false);
@@ -202,9 +202,9 @@ DAT.Globe = function(container, colorFn) {
   addData = function(data, opts) {
     var lat, lng, size, color, i, step, colorFnWrapper;
 
-    var c_scale = d3.scale.linear()
+    c_scale = d3.scale.linear()
                     .domain([MIN, MAX])
-                    .range([0.0, 0.2]);
+                    .range([0.0, 0.25]);
 
     opts.animated = opts.animated || false;
     this.is_animated = opts.animated;
@@ -292,8 +292,6 @@ DAT.Globe = function(container, colorFn) {
 
   function addPoint(lat, lng, size, color, subgeo) {
 
-    
-    
     var phi = (90 - lat) * Math.PI / 180;
     var theta = (180 - lng) * Math.PI / 180;
 
@@ -310,15 +308,11 @@ DAT.Globe = function(container, colorFn) {
     point.updateMatrix();
 
     for (var i = 0; i < point.geometry.faces.length; i++) {
-
       point.geometry.faces[i].color = color;
       subgeo.colors.push(color);
-
     }
       
     THREE.GeometryUtils.merge(subgeo, point);  
-
-  
   }
 
   function onMouseDown(event) {
@@ -424,6 +418,10 @@ DAT.Globe = function(container, colorFn) {
     return this._time || 0;
   });
 
+  //this.__defineGetter__('distanceTarget', function() {
+    //return this.distanceTarget|| 0;
+  //});
+
   this.__defineSetter__('time', function(t) {
     var validMorphs = [];
     var morphDict = this.points.morphTargetDictionary;
@@ -437,8 +435,11 @@ DAT.Globe = function(container, colorFn) {
     var l = validMorphs.length;
     //console.log("t=" + t);
     var scaledt = t*l+1;
+    if(scaledt >= test) return;
     //console.log("scaledt=" + scaledt);
     var index = Math.floor(scaledt);
+    //console.log("scaledt=" + scaledt);
+    //console.log("index" + index);
     //var index = t;
    
     //console.log("index=" + index);
@@ -454,9 +455,11 @@ DAT.Globe = function(container, colorFn) {
     }
     this.points.morphTargetInfluences[index] = leftover;
     //console.log(this.points.morphTargetInfluences);
-    //this.points.morphTargetInfluences[index] = 1;
     
-    //update color
+    ////////////////
+    //update color//
+    ////////////////
+
     var cl = this.points.geometry.faces.length;
     if(lastIndex >= 0){
       for (var c = 0; c < cl; c++){
@@ -465,9 +468,42 @@ DAT.Globe = function(container, colorFn) {
           var color_delta = color_distance * leftover;
           this.points.geometry.faces[c].color.setHSL(ori_h+color_delta,1.0,0.5);
       }
+
+      if (scaledt === index) {
+        //console.log("true");
+        var cam_end = cam_scale(each_day_max[index]);
+
+      //var cam_ori = cam_scale(each_day_max[lastIndex]);
+      //console.log(cam_end + " ," + cam_ori);
+      //var cam_position = cam_end; 
+      //console.log(cam_position);
+        //this.distanceTarget = cam_end;
+      }   
     }
     this.points.geometry.colorsNeedUpdate = true;
 
+    /////////////////
+    //update slider//
+    /////////////////
+    d3.select("#dot")
+      .transition()
+      
+      .attr("cx",x_scale(d_scale(t*l)))
+      .ease("linear")
+      .duration(0); 
+
+    d3.select("#date")
+      .transition()
+      
+      .attr("transform", "translate(" + x_scale(d_scale(t*l)) + ", 20)")
+      .ease("linear")
+      .duration(0);
+
+    $("#date").text(format_date(new Date(d_scale(t*l))));
+    //}    
+
+    //save image frame here...hope not going to kill my machine
+    saveFrame();
     this._time = t;
 
   });
@@ -476,6 +512,7 @@ DAT.Globe = function(container, colorFn) {
   this.createPoints = createPoints;
   this.renderer = renderer;
   this.scene = scene;
+  //this.distanceTarget = distanceTarget;
 
   return this;
 

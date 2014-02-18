@@ -19,6 +19,9 @@
 <div id="title">
   Coca-cola Freestyle
 </div>
+<div id="slider">
+  <span style="top:0;position:absolute"></span>
+</div>  
 
 <a id="ce" href="http://www.chromeexperiments.com/globe">
   <span>Senseable City Lab</span>
@@ -34,43 +37,123 @@
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <script type="text/javascript">
 
-
-
-
-
-  //var years = ['1990','1995','2000'];
   var container = document.getElementById('container');
   var globe = new DAT.Globe(container);
 
-  //console.log(globe);
-  //console.log(globe);
-  var days = null;
-  var tweens = [];
-  var test = 100
 
-  var settime = function(globe, t) {  
+  var days = null;
+  var tweens = []; cam_tweens = [];
+  var each_day_max = [];
+  var test = 4;
+  var frame_speed = 1000;
+  var start_delay = 2000;
+  var sli_width = 1100; // days to test
+  var margin = {top: 20, right: 50, bottom: 20, left: 50},
+      width = sli_width + margin.left + margin.right,
+      height = 100 + margin.top + margin.bottom;
+  var format_date = d3.time.format("%Y.%m.%d");
+
+    var svg = d3.select("#slider").append("svg")
+      .attr("width", width)
+      .attr("height", height)
+    .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+  var settime = function(globe,pointer,t) {  
     //return function() {
-      var tween = new TWEEN.Tween(globe).to({time: t/test},1000).easing(TWEEN.Easing.Cubic.EaseOut);
+      var tween = new TWEEN.Tween(globe).to({time: t/test},frame_speed).easing(TWEEN.Easing.Cubic.EaseOut);
       tweens.push(tween);
+
+      var cam_tween = new TWEEN.Tween(this).to({distanceTarget : cam_scale(each_day_max[t])},frame_speed).easing(TWEEN.Easing.Cubic.EaseOut);
+      cam_tweens.push(cam_tween);
+
+      //Can I merge two tween with diiferent targets?  
+      if(t==0){
+        tween.delay(start_delay).start();
+        cam_tween.delay(start_delay).start();
+        
+      }
 
       if (t > 0){
         tweens[t-1].chain(tween);
+        cam_tweens[t-1].chain(cam_tween);
+
       }
     //};
   };
-  
-  for (var t = 0; t < test; t++) {
-       settime(globe,t);             
+
+  var draw_slider = function(x){
+    
+    var x = x;
+    var top = 40;
+    var format = d3.time.format("%b");
+
+
+
+    var xAxis = d3.svg.axis()
+      .scale(x)
+      .tickFormat(function(d){return format(d);})
+      .tickPadding(10)
+      .orient("bottom");
+
+    svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + top + ")")
+      .call(xAxis);
+
+    var dot = svg.append("circle")
+    .attr("cy", top)
+    .attr("cx", 0)
+    .attr("r", 7)
+    .attr("id","dot")
+    .style("fill", "#ff0000");
+
+    var date = svg.append("text")
+    .attr("transform", "translate(0," + margin.top + ")")
+    .attr("id","date")
+    .style("fill","#ff0000")
+    .style("text-anchor","middle")
+    .text("");
+}
+
+  var animate_slider = function(){
+
+    //upd_date = function(t){
+      //$("#date").text(format_date(new Date(d_scale(t))));
+    //}
+    
+    //for( var i = 0; i < test; i++){
+      //setTimeout(upd_date,start_delay+i*frame_speed,i);
+    //}      
+    /*
+    d3.select("#dot")
+      .transition()
+      .delay(start_delay)
+      .attr("cx",x_scale(d_scale(test-1)))
+      .ease("linear")
+      .duration(frame_speed*test); 
+
+    d3.select("#date")
+      .transition()
+      .delay(start_delay)
+      .attr("transform", "translate(" + x_scale(d_scale(test-1)) + ", " + margin.top + ")")
+      .ease("linear")
+      .duration(frame_speed*test);   
+      */   
   }
     
-  TWEEN.start();  
+ // TWEEN.start();
+
+  //var Cam_tween = new TWEEN.Tween(this).to({distanceTarget : 400},1000).easing(TWEEN.Easing.Cubic.EaseOut);
+  //TWEEN.start();
+  //Cam_tween.start();
 
 $(window).ready(function(){
  d3.csv("/coke50/data/Daily.csv", function(raw_data){
-    //data = [];
-    //console.log(raw_data);
+
     var key = Object.keys(raw_data[0]);
-    //console.log(key);
     days = key.length - 3;    
     console.log(days + " days per machine");
     
@@ -82,41 +165,58 @@ $(window).ready(function(){
       //var array_max = raw_data.map(function(d){ d3.max()})
     
     var minimum = key.slice(0,key.length-3).map(function(k){ return d3.min(raw_data, function(d){ return parseFloat(d[k]);}); });
-    
-    
+      
     var maximum = key.slice(0,key.length-3).map(function(k){ return d3.max(raw_data, function(d){ return parseFloat(d[k]);}); });
 
     MIN = d3.min(minimum);
     MAX = d3.max(maximum);
     
-    
-    //console.log(MAX); 
-      //var max = d3.max(consumption, function(d) { return parseFloat(d.total);} );
-      //if (max > MAX) MAX = max;
-
-      //var min = d3.min(data, function(d) { return parseFloat(d.total);} );
-      //if (min < MIN) MIN = min;
-
-      //console.log(MIN + " , " + MAX);
-      //data.push({id:d.machineId, lat:d.lat, lng:d.lng, total:consumption});
-    //});
-    //console.log(data.length + " machine added!");
-    
     var count = 0;
+    
     for (var i = 0; i < test; i++ ){
       var each_day = [];
+      
       raw_data.forEach(function(d){
         each_day.push({id:d.machineId, lat:d.lat, lng:d.lng, total:parseFloat(d[i+1])});
       });
-      //console.log(each_day);  
+      console.log("data ready!");
+      each_day_max.push( d3.max(each_day, function(d){ return d.total; }));
+      
       globe.addData(each_day, {format: 'magnitude', name: "day"+(i+1), animated: true});
       count++;
+      console.log(count + " days added!");
     }
+    
+    globe.createPoints();
+    //console.log(each_day_max);
+    MIN_d = d3.min(each_day_max);
+    MAX_d = d3.max(each_day_max);
 
-    console.log(count + " days added!");
+    cam_scale = d3.scale.linear()
+              .domain([MIN_d, MAX_d])
+              .range([c_close, c_far]);
+
+    
+
+    d_scale = d3.time.scale()
+              .domain([0, days])
+              .range([new Date("Jan 01 2013 00:00:00 GMT-0500 (EST)"), new Date("Dec 01 2013 00:00:00 GMT-0500 (EST)")]);
+
+   
+    x_scale = d3.time.scale()
+              .domain([new Date("Jan 01 2013 00:00:00 GMT-0500 (EST)"), new Date("Dec 01 2013 00:00:00 GMT-0500 (EST)")])
+              .range([0,sli_width]);
+    
+    draw_slider(x_scale);
+    pointer = document.getElementById("dot");
+
+    //animate_slider();
+    for (var t = 0; t < test; t++) {
+        settime(globe,pointer,t);             
+    }
     TWEEN.start();
     
-    tweens[0].delay(1000).start();
+    //tweens[0].delay(1000).start();
     //var data = [pop_data,machine_data,machine_all_data];
     //var top50 = data[1].slice(0,50);
     
@@ -131,13 +231,11 @@ $(window).ready(function(){
     //globe.addData(data[1], {format: 'legend', name:'machine'});
     
     //globe.createPoints();
-   // globe.addData(data[2], {format: 'legend', name:'machine_all'});
+    //globe.addData(data[2], {format: 'legend', name:'machine_all', animated: false});
     
     globe.createPoints();
     globe.animate();
 
-
-    
     document.body.style.backgroundImage = 'none'; // remove loading
 
   });
@@ -146,6 +244,8 @@ $(window).ready(function(){
 //setInterval(saveFrame,500);
 
 });
+
+
 
 
 </script>
