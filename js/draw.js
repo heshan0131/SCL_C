@@ -12,7 +12,7 @@ function saveFrame () {
   var a = document.createElement("a");
     a.download = format(frameN) + ".png";
     a.href = canvas.toDataURL("image/png");
-    a.click()
+    //a.click()
   delete a
   frameN += 1
 }

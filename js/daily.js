@@ -282,6 +282,8 @@ DAT.Globe = function(container, colorFn) {
               color: 0xffffff,
               attributes: {},
               vertexColors: THREE.FaceColors,
+              blending: THREE.AdditiveBlending, 
+              transparent: false,
               morphTargets: true
             }));
       }      
@@ -301,8 +303,8 @@ DAT.Globe = function(container, colorFn) {
 
     point.lookAt(mesh.position);
 
-    point.scale.x = 0.3;
-    point.scale.y = 0.3;
+    point.scale.x = 0.4;
+    point.scale.y = 0.4;
 
     point.scale.z = Math.max( size, 0.1 ); // avoid non-invertible matrix
     point.updateMatrix();
