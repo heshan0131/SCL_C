@@ -29,6 +29,7 @@ var target = { x: 3.0023889803846893, y: 0.7635987755982989 };
 //var distanceTarget_3 = 400;
 var imgDir = '/coke50/image/';
 
+//set camera zoom in trajectory
 var trajectory = [
   {dist : 390,
     targ: {x: 3.2484077502602235, y: 0.5993469676865384}},
@@ -37,6 +38,8 @@ var trajectory = [
     targ: {x: 3.2713414803550953, y: 0.5799547862833997}}
 ]
 
+
+// Press keyboard "a" to start camera zoom in onto earth
 zoom_to_top10 = function(duration){
 
   var p1 = duration/Math.abs(trajectory[0].dist - distanceTarget) * 5
@@ -59,8 +62,6 @@ zoom_to_top10 = function(duration){
   },duration + 1500);  
   
 }
-//distanceTarget = distanceTarget_1;
-//var MAX = 0, MIN = 10000000;
 
 
 DAT.Globe = function(container, colorFn) {
@@ -168,13 +169,8 @@ DAT.Globe = function(container, colorFn) {
     uniforms_2 = THREE.UniformsUtils.clone(shader.uniforms);
 
     uniforms_2['texture'].value = THREE.ImageUtils.loadTexture(imgDir+'world_3.jpg');
-
-
-    //uniforms = { time: { type: "f", value: 1.0 }, resolution: { type: "v2", value: new THREE.Vector2() } }; 
-    //material = new THREE.ShaderMaterial( { uniforms: uniforms, 
-      //vertexShader: document.getElementById( 'vertexShader' ).textContent, 
-      //fragmentShader: document.getElementById( 'fragmentShader' ).textContent } );
     
+    //Here set the material of the globe
     material_g_zoom1  = new THREE.ShaderMaterial({
 
           uniforms: uniforms,
@@ -191,9 +187,7 @@ DAT.Globe = function(container, colorFn) {
 
     shader = Shaders['atmosphere'];
     uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-
    
-    
     material = new THREE.ShaderMaterial({
 
           uniforms: uniforms,
@@ -216,7 +210,9 @@ DAT.Globe = function(container, colorFn) {
 
     renderer = new THREE.WebGLRenderer({
       preserveDrawingBuffer: true, 
-      antialias: true});
+      antialias: true
+    });
+    
     renderer.setSize(w, h);
     renderer.setClearColor( 0x000000, 1 );
 

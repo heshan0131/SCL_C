@@ -35,7 +35,7 @@
 <script type="text/javascript" src="/coke50/js/camera.js"></script>
 <script type="text/javascript" src="/coke50/js/draw.js"></script>
 <script src="http://d3js.org/d3.v2.min.js?2.8.1"></script>
-<script src="/coke50/js/mouse.js"></script>
+<script type="text/javascript" src="/coke50/js/mouse.js"></script>
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <script type="text/javascript">
 
@@ -46,16 +46,16 @@
   var days = null;
   var tweens = []; cam_tweens = [];
   var each_day_max = [];
-  var test = 10;
-  var frame_speed = 2000;
+  var test = 10; // IMPORTAMT!! Here set the number of days to animate (there are 335 days in total, takes 0.2 seconds to load 1 day)
+  var frame_speed = 2000; // IMPORTAMT!! Change the speed of the animation
   var start_delay = 2000;
-  var sli_width = 1100; // days to test
+  var sli_width = 1100; //
   var margin = {top: 20, right: 50, bottom: 20, left: 50},
       width = sli_width + margin.left + margin.right,
       height = 100 + margin.top + margin.bottom;
   var format_date = d3.time.format("%Y.%m.%d");
 
-    var svg = d3.select("#slider").append("svg")
+  var svg = d3.select("#slider").append("svg")
       .attr("width", width)
       .attr("height", height)
     .append("g")
@@ -64,10 +64,12 @@
 
 
   var settime = function(globe,pointer,t) {  //Here generate the animation chain
-    //return function() {
+    
+      //animate globe with bars based on consumption (function defined in daily.js line 463)
       var tween = new TWEEN.Tween(globe).to({time: t/test},frame_speed).easing(TWEEN.Easing.Cubic.EaseOut);
       tweens.push(tween);
 
+      //animate camera
       var cam_tween = new TWEEN.Tween(this).to({distanceTarget : cam_scale(each_day_max[t])},frame_speed).easing(TWEEN.Easing.Cubic.EaseOut);
       cam_tweens.push(cam_tween);
 
@@ -77,23 +79,17 @@
         cam_tween.delay(start_delay).start();
         
       } else {
-        //if (t == test-1){ // add calloncomplete to the last tween
-          //tween.call(zoom_to_top10);
-        //}
-
         tweens[t-1].chain(tween);
         cam_tweens[t-1].chain(cam_tween);
       }
-    //};
+    
   };
 
-  var draw_slider = function(x){
+  var draw_slider = function(x){ // draw the time slider
     
     var x = x;
     var top = 40;
     var format = d3.time.format("%b");
-
-
 
     var xAxis = d3.svg.axis()
       .scale(x)
@@ -132,8 +128,7 @@ $(window).ready(function(){
     console.log(days + " days per machine");
     
     
-    var minimum = key.slice(0,key.length-3).map(function(k){ return d3.min(raw_data, function(d){ return parseFloat(d[k]);}); });
-      
+    var minimum = key.slice(0,key.length-3).map(function(k){ return d3.min(raw_data, function(d){ return parseFloat(d[k]);}); });      
     var maximum = key.slice(0,key.length-3).map(function(k){ return d3.max(raw_data, function(d){ return parseFloat(d[k]);}); });
 
     MIN = d3.min(minimum);
@@ -164,9 +159,7 @@ $(window).ready(function(){
     cam_scale = d3.scale.linear()
               .domain([MIN_d, MAX_d])
               .range([c_close, c_far]);
-
     
-
     d_scale = d3.time.scale()
               .domain([0, days])
               .range([new Date("Jan 01 2013 00:00:00 GMT-0500 (EST)"), new Date("Dec 01 2013 00:00:00 GMT-0500 (EST)")]);
