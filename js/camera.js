@@ -36,3 +36,5 @@ function camera_move(target_final, distance_final, delta_d, time_step){
 	camera_increment(delta_t, delta_d, distance_final);
 	//rotate
 }
+
+

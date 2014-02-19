@@ -17,34 +17,47 @@ var rotation = null;
 var target = { x: 3.0023889803846893, y: 0.7635987755982989 };
 //var distanceTarget = 100000;
 
-var target_1 = {x: 2.964955396106033, y: 0.7201028706105379};
-var target_2 = {x: 2.964955396106033, y: 0.7201028706105379};
-var target_3 = {x: 2.964955396106033, y: 0.7201028706105379};
+//var target_1 = {x: 2.964955396106033, y: 0.7201028706105379};
+//var target_2 = {x: 2.964955396106033, y: 0.7201028706105379};
+//var target_3 = {x: 2.964955396106033, y: 0.7201028706105379};
 
 
 //var target_2 = {x: 3.3556551396534653, y: 0.4944166519362625};
 //var target_3 = {x: 3.254085128246786, y: 0.5582591552116186};
-var distanceTarget_1 = 460;
-var distanceTarget_2 = 380;
-var distanceTarget_3 = 400;
+//var distanceTarget_1 = 460;
+//var distanceTarget_2 = 380;
+//var distanceTarget_3 = 400;
+var imgDir = '/coke50/image/';
 
 var trajectory = [
   {dist : 390,
     targ: {x: 3.2484077502602235, y: 0.5993469676865384}},
 
-  {dist : 210,
-    targ: {x: 3.2441871891781444, y: 0.593777990481938}}
+  {dist : 220,
+    targ: {x: 3.2713414803550953, y: 0.5799547862833997}}
 ]
 
 zoom_to_top10 = function(duration){
 
-  var p = duration/Math.abs(trajectory[0].dist - distanceTarget) * 5
-  camera_move(trajectory[0].targ,trajectory[0].dist,-5,p);
+  var p1 = duration/Math.abs(trajectory[0].dist - distanceTarget) * 5
+  camera_move(trajectory[0].targ,trajectory[0].dist,-5,p1);
   //event.preventDefault();
 
-  var tween = new TWEEN.Tween(globe.points.material).to({opacity: 0.2},duration).easing(TWEEN.Easing.Cubic.EaseOut).start();
-      
+  var tween = new TWEEN.Tween(globe.points.material).to({opacity: 0.4},duration).easing(TWEEN.Easing.Cubic.EaseOut).start();
+  
+  setTimeout(function(){
+    var p2 = duration/Math.abs(trajectory[1].dist - distanceTarget) * 5
+    camera_move(trajectory[1].targ,trajectory[1].dist,-5,p2);
+    var tween = new TWEEN.Tween(globe.points.material).to({opacity: 0},duration*2).easing(TWEEN.Easing.Cubic.EaseOut).start();
+    
+  }, duration+500);
+  var image = THREE.ImageUtils.loadTexture(imgDir+'world_3.jpg');
+    
+  setTimeout(function(){
 
+      mesh_globe.material.uniforms.texture.value = image;
+  },duration + 1500);  
+  
 }
 //distanceTarget = distanceTarget_1;
 //var MAX = 0, MIN = 10000000;
@@ -115,7 +128,7 @@ DAT.Globe = function(container, colorFn) {
 
   var overRenderer;
 
-  var imgDir = '/coke50/image/';
+ 
 
   var curZoomSpeed = 0;
   var zoomSpeed = 50;

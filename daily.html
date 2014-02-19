@@ -46,8 +46,8 @@
   var days = null;
   var tweens = []; cam_tweens = [];
   var each_day_max = [];
-  var test = 4;
-  var frame_speed = 500;
+  var test = 10;
+  var frame_speed = 2000;
   var start_delay = 2000;
   var sli_width = 1100; // days to test
   var margin = {top: 20, right: 50, bottom: 20, left: 50},
@@ -200,7 +200,7 @@ $(window).ready(function(){
     //globe.createPoints();
     //globe.addData(data[2], {format: 'legend', name:'machine_all', animated: false});
     
-    globe.createPoints();
+    //globe.createPoints();
     globe.animate();
 
     document.body.style.backgroundImage = 'none'; // remove loading
