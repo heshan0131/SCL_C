@@ -10,4 +10,5 @@ in daily.html, wait till animation is over and press "a" to start camera zoom in
 Keyboard events:
 
 "a" - Start camera animation
+
 "s" - generate particles
