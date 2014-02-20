@@ -46,7 +46,7 @@
   var days = null;
   var tweens = []; cam_tweens = [];
   var each_day_max = [];
-  var test = 10; // IMPORTAMT!! Here set the number of days to animate (there are 335 days in total, takes 0.2 seconds to load 1 day)
+  var test = 4; // IMPORTAMT!! Here set the number of days to animate (there are 335 days in total, takes 0.2 seconds to load 1 day)
   var frame_speed = 2000; // IMPORTAMT!! Change the speed of the animation
   var start_delay = 2000;
   var sli_width = 1100; //
@@ -60,6 +60,7 @@
       .attr("height", height)
     .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  var all_day = [];    
 
 
 
@@ -148,9 +149,11 @@ $(window).ready(function(){
       globe.addData(each_day, {format: 'magnitude', name: "day"+(i+1), animated: true});
       count++;
       console.log(count + " days added!");
+      all_day.push(each_day);
     
     }
     
+    console.log(all_day);
     globe.createPoints();
     //console.log(each_day_max);
     MIN_d = d3.min(each_day_max);

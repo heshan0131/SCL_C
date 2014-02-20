@@ -146,19 +146,26 @@ $(window).ready(function(){
         d3.csv("/coke50/data/pop_dots.csv", function(pop_data){
            d3.csv("/coke50/data/machine_all.csv", function(machine_all_data){
               var data = [pop_data,machine_data,machine_all_data];
-              var top50 = data[1].slice(0,50);
+              var top50 = data[1].slice(0,10);
+
+              var ids = [];
+              top50.forEach(function(d){
+                ids.push(d.machineId);
+              })
+              console.log(ids);
+
               
               //globe.addData(data[0], {format: 'legend', name:'dot'});
               
               //globe.createPoints();
               
-              //globe.addData(top50, {format: 'legend', name:'machine50'});
-              
-              //globe.createPoints();
-
-              globe.addData(data[1], {format: 'legend', name:'machine'});
+              globe.addData(top50, {format: 'legend', name:'machine50'});
               
               globe.createPoints();
+
+              //globe.addData(data[1], {format: 'legend', name:'machine'});
+              
+              //globe.createPoints();
              // globe.addData(data[2], {format: 'legend', name:'machine_all'});
               
               //globe.createPoints();              
